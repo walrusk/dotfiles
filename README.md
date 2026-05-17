@@ -28,7 +28,7 @@ The bootstrap script will:
 - symlink topic dotfiles into `$HOME`
 - install Homebrew if it is missing
 - run `brew bundle`
-- run topic installers
+- run topic installers, including `robotnik` from `github.com/walrusk/robotnik`
 
 ## Shell
 
@@ -71,6 +71,11 @@ CLI plus Colima:
 colima start
 docker context use colima
 ```
+
+## Tools
+
+Bootstrap installs `robotnik` with Go into `~/.local/bin`, which is already on
+the default shell `PATH`.
 
 ## Layout
 
