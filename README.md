@@ -1,25 +1,95 @@
 # walrusk dotfiles
 
-Forked from [holman/dotfiles](https://github.com/holman/dotfiles).
+Personal macOS development dotfiles, forked long ago from
+[holman/dotfiles](https://github.com/holman/dotfiles).
 
-## components
+The current baseline is Apple Silicon-friendly, Homebrew-based, and uses zsh
+and Neovim as defaults.
 
-- **bin/**: Anything in `bin/` will get added to your `$PATH` and be made available everywhere.
-- **Brewfile**: This is a list of applications for [Homebrew Cask](https://caskroom.github.io) to install.
-- **topic/install.sh**: Any file named `install.sh` is executed when you run `./bootstrap`.
-- **topic/.\***: Dotfiles get symlinked into your `$HOME`. This is so you can keep all of those 
-  versioned in your dotfiles but still keep those autoloaded files in your home directory. These get
-  symlinked in when you run `./bootstrap`.
+## Install
 
-## install
-
-Run this:
+On a new Mac, install Apple's command line tools first:
 
 ```sh
-git clone https://github.com/walrusk/dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
+xcode-select --install
+```
+
+Then clone and bootstrap:
+
+```sh
+git clone https://github.com/walrusk/dotfiles.git ~/repos/dotfiles
+cd ~/repos/dotfiles
 ./bootstrap
 ```
 
-This will symlink the appropriate files in `.dotfiles` to your home directory.
-Everything is configured and tweaked within `~/.dotfiles`.
+The bootstrap script will:
+
+- create `git/.gitconfig.local` if needed
+- symlink topic dotfiles into `$HOME`
+- install Homebrew if it is missing
+- run `brew bundle`
+- run topic installers, including `robotnik` from `github.com/walrusk/robotnik`
+
+## Shell
+
+zsh is the default shell configuration. After bootstrap, make Homebrew zsh your
+login shell if it is not already:
+
+```sh
+chsh -s "$(brew --prefix)/bin/zsh"
+```
+
+The zsh setup uses:
+
+- `starship` for the prompt
+- `fzf`, `fd`, `ripgrep`, `bat`, and `eza` for navigation/search
+- `zoxide` instead of the older `z`
+- `direnv` when available
+- `rbenv` when available
+
+Bash is still configured as a small compatibility profile, but it no longer
+installs Bash-it.
+
+## Editor
+
+Neovim is the default editor:
+
+```sh
+echo "$EDITOR"
+nvim
+```
+
+The Neovim config is linked to `~/.config/nvim` by `nvim/install.sh`. Vim is
+left as a minimal fallback only.
+
+## Containers
+
+Docker Desktop is not installed by default. The Brewfile installs the Docker
+CLI plus Colima:
+
+```sh
+colima start
+docker context use colima
+```
+
+## Tools
+
+Bootstrap installs `robotnik` with Go into `~/.local/bin`, which is already on
+the default shell `PATH`.
+
+## Layout
+
+- `bin/`: personal command-line helpers added to `$PATH`
+- `Brewfile`: Homebrew bundle for the baseline development stack
+- `topic/install.sh`: topic installers run by `./bootstrap`
+- `topic/.*`: dotfiles symlinked into `$HOME`
+- `nvim/config/`: Neovim configuration linked to `~/.config/nvim`
+
+## Notes
+
+The bootstrap deliberately does not run macOS software updates automatically.
+Run this manually when you are ready:
+
+```sh
+softwareupdate --install --all
+```

@@ -1,1 +1,6 @@
-curl -m 10 "http://wttr.in/${*:-Winnipeg}" 2>/dev/null || printf '%s\n' "[ERROR] weather: Could not connect to weather service."
+#!/bin/sh
+
+set -eu
+
+curl -m 10 "https://wttr.in/${*:-Winnipeg}" 2>/dev/null ||
+  printf '%s\n' "[ERROR] weather: Could not connect to weather service."
