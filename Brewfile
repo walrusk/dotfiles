@@ -40,8 +40,3 @@ brew "python"
 brew "uv"
 brew "rbenv"
 brew "ruby-build"
-
-# Container runtime without Docker Desktop
-brew "docker"
-brew "docker-compose"
-brew "colima"

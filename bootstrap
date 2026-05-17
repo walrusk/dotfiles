@@ -28,16 +28,11 @@ main() {
   heading "Installing Homebrew bundle"
   brew bundle --file "$DOTFILES_ROOT/Brewfile"
 
+  heading "Configuring default shell"
+  setup_default_shell
+
   heading "Running topic installers"
   run_installers
-
-  heading "Manual follow-up"
-  printf '%s\n' \
-    "1. Set your default shell to Homebrew zsh if needed:" \
-    "   chsh -s \"$(brew --prefix)/bin/zsh\"" \
-    "2. Keyboard Settings -> Keyboard Shortcuts -> Function Keys -> Use F1, F2, etc. as standard function keys" \
-    "3. Keyboard Settings -> Modifier Keys -> map Caps Lock to Control" \
-    "4. Start the local container runtime when needed with: colima start"
 
   heading "Done"
 }
@@ -85,9 +80,71 @@ setup_gitconfig() {
   success "created git/.gitconfig.local"
 }
 
+setup_default_shell() {
+  local target_shell="/bin/zsh"
+  local current_shell
+
+  current_shell="$(get_login_shell)"
+  if [ "$current_shell" = "$target_shell" ]; then
+    success "$target_shell is already your default shell"
+    return
+  fi
+
+  if [ ! -x "$target_shell" ]; then
+    success "$target_shell is not available; skipping default shell setup"
+    return
+  fi
+
+  if ! confirm "Set $target_shell as your default login shell?"; then
+    success "skipped default shell setup"
+    return
+  fi
+
+  ensure_shell_allowed "$target_shell"
+
+  if ! command -v chsh >/dev/null 2>&1; then
+    fail "chsh is not available; could not set default shell"
+  fi
+
+  chsh -s "$target_shell"
+  success "set default shell to $target_shell"
+}
+
+get_login_shell() {
+  local current_shell=
+
+  if command -v dscl >/dev/null 2>&1; then
+    current_shell="$(dscl . -read "/Users/$(id -un)" UserShell 2>/dev/null | awk '{print $2}' || true)"
+  elif command -v getent >/dev/null 2>&1; then
+    current_shell="$(getent passwd "$(id -un)" | cut -d: -f7 || true)"
+  fi
+
+  printf '%s\n' "${current_shell:-${SHELL:-}}"
+}
+
+ensure_shell_allowed() {
+  local target_shell=$1
+  local shells_file="/etc/shells"
+
+  if [ -f "$shells_file" ] && grep -Fxq "$target_shell" "$shells_file"; then
+    return
+  fi
+
+  if ! confirm "$target_shell is not listed in $shells_file. Add it with sudo?"; then
+    fail "$target_shell must be listed in $shells_file before chsh can use it"
+  fi
+
+  if ! printf '%s\n' "$target_shell" | sudo tee -a "$shells_file" >/dev/null; then
+    fail "could not add $target_shell to $shells_file"
+  fi
+
+  success "added $target_shell to $shells_file"
+}
+
 install_dotfiles() {
   while IFS= read -r -d '' -u 3 src; do
-    local dst="$HOME/$(basename "$src")"
+    local dst
+    dst="$HOME/$(basename "$src")"
     link_file "$src" "$dst"
   done 3< <(
     find -H "$DOTFILES_ROOT" \
@@ -103,7 +160,7 @@ install_dotfiles() {
 
 run_installers() {
   while IFS= read -r -u 3 installer; do
-    success "running ${installer#$DOTFILES_ROOT/}"
+    success "running ${installer#"$DOTFILES_ROOT"/}"
     (
       cd "$(dirname "$installer")"
       DOTFILES_ROOT="$DOTFILES_ROOT" bash "$installer"
@@ -179,6 +236,19 @@ heading() {
 
 user() {
   printf '  [??] %s\n' "$1"
+}
+
+confirm() {
+  local prompt=$1
+  local answer=
+
+  user "$prompt [y/N]"
+  if ! read -r -n 1 answer; then
+    answer=
+  fi
+  printf '\n'
+
+  [ "$answer" = "y" ] || [ "$answer" = "Y" ]
 }
 
 success() {

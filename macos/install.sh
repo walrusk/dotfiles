@@ -12,7 +12,6 @@ defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 defaults write NSGlobalDomain KeyRepeat -int 1
 defaults write NSGlobalDomain InitialKeyRepeat -int 12
-defaults write com.apple.dock autohide -bool true
 
 chflags nohidden "$HOME/Library" 2>/dev/null || true
 killall Finder >/dev/null 2>&1 || true

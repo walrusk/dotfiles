@@ -28,16 +28,14 @@ The bootstrap script will:
 - symlink topic dotfiles into `$HOME`
 - install Homebrew if it is missing
 - run `brew bundle`
+- offer to set `/bin/zsh` as the default login shell
 - run topic installers, including `robotnik` from `github.com/walrusk/robotnik`
 
 ## Shell
 
-zsh is the default shell configuration. After bootstrap, make Homebrew zsh your
-login shell if it is not already:
-
-```sh
-chsh -s "$(brew --prefix)/bin/zsh"
-```
+zsh is the default shell configuration. During bootstrap, accept the default
+shell prompt to run `chsh -s /bin/zsh`. If `/bin/zsh` is not listed in
+`/etc/shells`, bootstrap offers to add it with `sudo` before running `chsh`.
 
 The zsh setup uses:
 
@@ -58,16 +56,6 @@ nvim
 
 The Neovim config is linked to `~/.config/nvim` by `nvim/install.sh`. Vim is
 left as a minimal fallback only.
-
-## Containers
-
-Docker Desktop is not installed by default. The Brewfile installs the Docker
-CLI plus Colima:
-
-```sh
-colima start
-docker context use colima
-```
 
 ## Tools
 
