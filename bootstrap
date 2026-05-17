@@ -34,6 +34,10 @@ main() {
   heading "Running topic installers"
   run_installers
 
+  heading "Optional follow-up"
+  printf '%s\n' \
+    "1. Set your terminal profile font to JetBrainsMono Nerd Font so Starship prompt glyphs render correctly."
+
   heading "Done"
 }
 

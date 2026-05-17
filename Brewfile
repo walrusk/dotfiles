@@ -17,6 +17,12 @@ brew "fd"
 brew "bat"
 brew "eza"
 
+# Terminal font with Nerd Font / Powerline glyphs for Starship
+cask "font-jetbrains-mono-nerd-font"
+
+# Mac applications
+cask "maccy"
+
 # Data, file, and network utilities
 brew "jq"
 brew "yq"

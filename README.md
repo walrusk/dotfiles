@@ -28,6 +28,8 @@ The bootstrap script will:
 - symlink topic dotfiles into `$HOME`
 - install Homebrew if it is missing
 - run `brew bundle`
+- install JetBrainsMono Nerd Font for terminal glyph support
+- install Maccy as the clipboard manager
 - offer to set `/bin/zsh` as the default login shell
 - run topic installers, including `robotnik` from `github.com/walrusk/robotnik`
 
@@ -40,6 +42,7 @@ shell prompt to run `chsh -s /bin/zsh`. If `/bin/zsh` is not listed in
 The zsh setup uses:
 
 - `starship` for the prompt
+- JetBrainsMono Nerd Font for terminal glyph support
 - `fzf`, `fd`, `ripgrep`, `bat`, and `eza` for navigation/search
 - `zoxide` instead of the older `z`
 - `direnv` when available
