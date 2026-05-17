@@ -1,47 +1,47 @@
-cask_args appdir: '/Applications'
+cask_args appdir: "/Applications"
 
-# taps
-tap 'caskroom/homebrew-cask' || true
-tap 'homebrew/core' || true
+# Core development tools
+brew "git"
+brew "gh"
+brew "neovim"
+brew "zsh"
+brew "tmux"
 
-# version control
-brew 'git'
+# Shell ergonomics
+brew "starship"
+brew "fzf"
+brew "zoxide"
+brew "direnv"
+brew "ripgrep"
+brew "fd"
+brew "bat"
+brew "eza"
 
-# languages
-brew 'php'
-brew 'go'
-brew 'rbenv'
-brew 'ruby-build'
-brew 'node'
-brew 'python'
+# Data, file, and network utilities
+brew "jq"
+brew "yq"
+brew "tree"
+brew "watch"
+brew "wget"
+brew "dos2unix"
 
-# package managers
-brew 'composer'
-brew 'yarn'
+# Build and formatting tools
+brew "cmake"
+brew "shellcheck"
+brew "shfmt"
+brew "universal-ctags"
 
-# editors
-brew 'vim'
+# Language runtimes and package managers
+brew "go"
+brew "node"
+brew "pnpm"
+brew "yarn"
+brew "python"
+brew "uv"
+brew "rbenv"
+brew "ruby-build"
 
-# utilities
-brew 'tmux'
-brew 'ctags'
-brew 'tree'
-brew 'watch'
-brew 'direnv'
-brew 'z'
-brew 'fd'
-brew 'ack'
-brew 'fzf'
-brew 'cmake'
-brew 'highlight'
-brew 'dos2unix'
-brew 'wget'
-brew 'spaceman-diff'
-brew 'readline'
-brew 'jq'
-
-cask 'google-cloud-sdk'
-cask 'docker'
-
-brew 'kubernetes-cli'
-
+# Container runtime without Docker Desktop
+brew "docker"
+brew "docker-compose"
+brew "colima"

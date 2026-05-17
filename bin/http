@@ -1,10 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 
-if [ -z "$1" ]
-  then dir="."
-  else dir=$1
-fi
+set -eu
 
-openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem
-http-server -S $dir
+dir="${1:-.}"
+port="${PORT:-8000}"
 
+python3 -m http.server "$port" --directory "$dir"

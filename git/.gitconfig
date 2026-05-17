@@ -2,46 +2,50 @@
         path = ~/.gitconfig.local
 [core]
         excludesfile = ~/.gitignore
-        editor = /usr/bin/vim
-[hub]
-        protocol = https
+        editor = nvim
+[init]
+        defaultBranch = main
 [alias]
         amend = commit --amend
-    	ap = add -p
-    	b = branch -vv
-    	bd = branch -D
-    	c = commit -v
-    	fo = fetch origin
-    	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-    	co = checkout
-    	com = checkout master
-    	cod = checkout develop
-    	cob = checkout -b
-    	s = status
-    	pso = push origin
-    	plo = pull origin
-    	pushf = push --force-with-lease
-    	ignored = !git ls-files -v | grep "^[[:lower:]]"
-    	prune-local = !git branch --merged | tr -d '*' | grep -v dev | xargs -n1 git branch -d
-        promote = !git-promote
-        wtf     = !git-wtf
+        ap = add -p
+        b = branch -vv
+        bd = branch -D
+        c = commit -v
+        co = checkout
+        cob = checkout -b
+        cod = checkout develop
+        com = checkout main
+        count = shortlog -sn
+        fo = fetch origin
+        ignored = !git ls-files -v | grep "^[[:lower:]]"
+        lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+        plo = pull origin
+        prune-local = !git-delete-local-merged
+        pso = push origin
         rank-contributors = !git-rank-contributors
-        count   = !git shortlog -sn
+        s = status
+        wtf = !git-wtf
 [color]
+        branch = auto
         diff = auto
         status = auto
-        branch = auto
         ui = true
 [apply]
         whitespace = nowarn
-[mergetool]
-        keepBackup = false
+[branch]
+        sort = -committerdate
+[fetch]
+        prune = true
 [help]
         autocorrect = 1
+[mergetool]
+        keepBackup = false
 [pull]
-	    rebase = true
+        rebase = true
 [push]
         default = current
+[rerere]
+        enabled = true
 [url "git@github.com:"]
         pushInsteadOf = https://github.com
 [url "git@github.com:"]

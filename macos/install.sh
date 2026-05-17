@@ -1,21 +1,21 @@
-# The Brewfile handles Homebrew-based app and library installs, but there may
-# still be updates and installables in the Mac App Store. There's a nifty
-# command line interface to it that we can use to just install everything, so
-# yeah, let's do that.
+#!/usr/bin/env bash
 
-echo "› sudo softwareupdate -i -a"
-sudo softwareupdate -i -a
+set -euo pipefail
 
-# Always open everything in Finder's list view.
-defaults write com.apple.Finder FXPreferredViewStyle Nlsv
+if [ "$(uname -s)" != "Darwin" ]; then
+  echo "Not macOS; skipping macOS defaults."
+  exit 0
+fi
 
-# Show hidden files
 defaults write com.apple.finder AppleShowAllFiles -bool true
-
-# Show the ~/Library folder.
-chflags nohidden ~/Library
-
-# Set a really fast key repeat.
+defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
+defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 defaults write NSGlobalDomain KeyRepeat -int 1
+defaults write NSGlobalDomain InitialKeyRepeat -int 12
+defaults write com.apple.dock autohide -bool true
 
-killall Finder
+chflags nohidden "$HOME/Library" 2>/dev/null || true
+killall Finder >/dev/null 2>&1 || true
+killall Dock >/dev/null 2>&1 || true
+
+echo "Run 'softwareupdate --install --all' manually when you are ready for macOS updates."

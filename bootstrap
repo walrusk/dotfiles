@@ -1,183 +1,191 @@
 #!/usr/bin/env bash
-# bootstrap installs things.
-cd "$(dirname $0)"
 
-# FORMATTING
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+DOTFILES_ROOT="$(pwd -P)"
+
 HL=$'\e[0;92m'
-HAPPY=$'\e[0;92m'
 WARN=$'\e[91m'
-HEADER=$'\e[107m\e[30m'
 END=$'\e[0m\e[39m\e[49m'
-LB=$'\n'
 
-DOTFILES_ROOT=$(pwd -P)
-set -e
+overwrite_all=false
+backup_all=false
+skip_all=false
 
-function main () {
-  heading '@walrusk .dotfiles bootstrap' '💾'
+main() {
+  heading "@walrusk dotfiles bootstrap"
 
-  heading 'Setup gitconfig..'
-  setup_gitconfig;
+  heading "Setting up git identity"
+  setup_gitconfig
 
-  heading 'Installing dotfiles..'
-  install_dotfiles;
+  heading "Linking dotfiles"
+  install_dotfiles
 
-  heading 'Installing homebrew..'
-  setup_homebrew;
+  heading "Setting up Homebrew"
+  setup_homebrew
 
-  heading 'Installing dependencies..'
-  brew bundle;
+  heading "Installing Homebrew bundle"
+  brew bundle --file "$DOTFILES_ROOT/Brewfile"
 
-  # find the installers and run them iteratively
-  heading 'Running installers..'
-  find . -name install.sh | while read installer ; do sh -c "${installer}" ; done
+  heading "Running topic installers"
+  run_installers
 
-  heading 'Manual steps..'
-	echo "1. Keyboard Settings ==> Use F1,F2, etc. as std. function keys
-2. Keyboard Settings ==> Modifier Keys ==> Caps Lock as Ctrl
-3. iTerm2 Preferences ==> Keys ==> + ==> Cmd+K --> Send Hex Codes: 0x02 0x0B 0x0C"
+  heading "Manual follow-up"
+  printf '%s\n' \
+    "1. Set your default shell to Homebrew zsh if needed:" \
+    "   chsh -s \"$(brew --prefix)/bin/zsh\"" \
+    "2. Keyboard Settings -> Keyboard Shortcuts -> Function Keys -> Use F1, F2, etc. as standard function keys" \
+    "3. Keyboard Settings -> Modifier Keys -> map Caps Lock to Control" \
+    "4. Start the local container runtime when needed with: colima start"
 
-  heading 'FIN' '🦈'
+  heading "Done"
 }
 
-function setup_homebrew () {
-  if [ -x /usr/local/bin/brew ]; then
-      brew update;
+setup_homebrew() {
+  if ! command -v brew >/dev/null 2>&1; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
+
+  if command -v brew >/dev/null 2>&1; then
+    eval "$(brew shellenv)"
+  elif [ -x /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [ -x /usr/local/bin/brew ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
   else
-      /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)";
-      if [ -x /usr/local/bin/brew ]; then
-          brew -v
-      else
-          exit 1;
-      fi
+    fail "Homebrew install did not leave brew on PATH"
   fi
+
+  success "brew $(brew --version | head -n 1)"
 }
 
-function setup_gitconfig () {
-  if ! [ -f git/.gitconfig.local ]
-  then
-    git_credential='cache'
-    if [ "$(uname -s)" == "Darwin" ]
-    then
-      git_credential='osxkeychain'
-    fi
-
-    user ' - What is your github author name?'
-    read -e git_authorname
-    user ' - What is your github author email?'
-    read -e git_authoremail
-
-    sed -e "s/AUTHORNAME/$git_authorname/g" -e "s/AUTHOREMAIL/$git_authoremail/g" -e "s/GIT_CREDENTIAL_HELPER/$git_credential/g" git/.gitconfig.local.example > git/.gitconfig.local
-
-    success 'gitconfig'
+setup_gitconfig() {
+  if [ -f "$DOTFILES_ROOT/git/.gitconfig.local" ]; then
+    success "git/.gitconfig.local already exists"
+    return
   fi
+
+  local git_credential="cache"
+  if [ "$(uname -s)" = "Darwin" ]; then
+    git_credential="osxkeychain"
+  fi
+
+  user "Git author name?"
+  read -r git_authorname
+  user "Git author email?"
+  read -r git_authoremail
+
+  sed \
+    -e "s/AUTHORNAME/$git_authorname/g" \
+    -e "s/AUTHOREMAIL/$git_authoremail/g" \
+    -e "s/GIT_CREDENTIAL_HELPER/$git_credential/g" \
+    "$DOTFILES_ROOT/git/.gitconfig.local.example" >"$DOTFILES_ROOT/git/.gitconfig.local"
+
+  success "created git/.gitconfig.local"
 }
 
-function link_file () {
-  local src=$1 dst=$2
+install_dotfiles() {
+  while IFS= read -r -d '' src; do
+    local dst="$HOME/$(basename "$src")"
+    link_file "$src" "$dst"
+  done < <(
+    find -H "$DOTFILES_ROOT" \
+      -mindepth 2 \
+      -maxdepth 2 \
+      -name '.*' \
+      ! -name '.DS_Store' \
+      ! -name '*.example' \
+      ! -path '*/.git/*' \
+      -print0
+  )
+}
 
-  local overwrite= backup= skip=
+run_installers() {
+  while IFS= read -r installer; do
+    success "running ${installer#$DOTFILES_ROOT/}"
+    (
+      cd "$(dirname "$installer")"
+      DOTFILES_ROOT="$DOTFILES_ROOT" bash "$installer"
+    )
+  done < <(
+    find "$DOTFILES_ROOT" \
+      -name install.sh \
+      ! -path "$DOTFILES_ROOT/.git/*" \
+      -print | sort
+  )
+}
+
+link_file() {
+  local src=$1
+  local dst=$2
+  local overwrite=false
+  local backup=false
+  local skip=false
   local action=
 
-  if [ -f "$dst" -o -d "$dst" -o -L "$dst" ]
-  then
+  if [ -e "$dst" ] || [ -L "$dst" ]; then
+    local current_src=
+    current_src="$(readlink "$dst" 2>/dev/null || true)"
 
-    if [ "$overwrite_all" == "false" ] && [ "$backup_all" == "false" ] && [ "$skip_all" == "false" ]
-    then
+    if [ "$current_src" = "$src" ]; then
+      skip=true
+    elif [ "$overwrite_all" = false ] && [ "$backup_all" = false ] && [ "$skip_all" = false ]; then
+      user "File exists: $dst ($(basename "$src")). [s]kip, [S]kip all, [o]verwrite, [O]verwrite all, [b]ackup, [B]ackup all?"
+      read -r -n 1 action
+      printf '\n'
 
-      local currentSrc="$(readlink $dst)"
-
-      if [ "$currentSrc" == "$src" ]
-      then
-
-        skip=true;
-
-      else
-
-        user "File already exists: $dst ($(basename "$src")), what do you want to do?\n\
-        [s]kip, [S]kip all, [o]verwrite, [O]verwrite all, [b]ackup, [B]ackup all?"
-        read -n 1 action
-
-        case "$action" in
-          o )
-            overwrite=true;;
-          O )
-            overwrite_all=true;;
-          b )
-            backup=true;;
-          B )
-            backup_all=true;;
-          s )
-            skip=true;;
-          S )
-            skip_all=true;;
-          * )
-            ;;
-        esac
-
-      fi
-
+      case "$action" in
+        o) overwrite=true ;;
+        O) overwrite_all=true ;;
+        b) backup=true ;;
+        B) backup_all=true ;;
+        s) skip=true ;;
+        S) skip_all=true ;;
+        *) skip=true ;;
+      esac
     fi
 
-    overwrite=${overwrite:-$overwrite_all}
-    backup=${backup:-$backup_all}
-    skip=${skip:-$skip_all}
+    [ "$overwrite_all" = true ] && overwrite=true
+    [ "$backup_all" = true ] && backup=true
+    [ "$skip_all" = true ] && skip=true
 
-    if [ "$overwrite" == "true" ]
-    then
+    if [ "$overwrite" = true ]; then
       rm -rf "$dst"
       success "removed $dst"
     fi
 
-    if [ "$backup" == "true" ]
-    then
+    if [ "$backup" = true ]; then
       mv "$dst" "${dst}.backup"
       success "moved $dst to ${dst}.backup"
     fi
 
-    if [ "$skip" == "true" ]
-    then
-      success "skipped $src"
+    if [ "$skip" = true ]; then
+      success "skipped $dst"
     fi
   fi
 
-  if [ "$skip" != "true" ]  # "false" or empty
-  then
-    ln -s "$1" "$2"
-    success "linked $1 to $2"
+  if [ "$skip" != true ]; then
+    ln -s "$src" "$dst"
+    success "linked $dst"
   fi
 }
 
-function install_dotfiles () {
-  local overwrite_all=false backup_all=false skip_all=false
-
-  for src in $(find -H "$DOTFILES_ROOT" -maxdepth 2 -name '.*' ! -path "$DOTFILES_ROOT" ! -path '*.git' ! -path "$DOTFILES_ROOT/.gitignore" ! -path '*.DS_Store' ! -path '*.example')
-  do
-    dst="$HOME/$(basename "${src}")"
-    link_file "$src" "$dst"
-  done
+heading() {
+  printf '\n  [..] %s%s%s\n' "$HL" "$1" "$END"
 }
 
-function heading () {
-  ICON=$2
-  if [ -z "$ICON" ]; then
-      ICON='🚚'
-  fi
-  echo "  [ ${ICON}  ] ${HL}$1${END}"
+user() {
+  printf '  [??] %s\n' "$1"
 }
 
-function user () {
-  printf "\r  [ \033[0;33m??\033[0m ] $1\n"
+success() {
+  printf '  [OK] %s\n' "$1"
 }
 
-function success () {
-  printf "\r\033[2K  [ \033[00;32mOK\033[0m ] $1\n"
+fail() {
+  printf '  [FAIL] %s%s%s\n' "$WARN" "$1" "$END"
+  exit 1
 }
 
-function fail () {
-  printf "\r\033[2K  [\033[0;31mFAIL\033[0m] $1\n"
-  echo ''
-  exit
-}
-
-main;
+main "$@"
