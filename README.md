@@ -47,9 +47,6 @@ The zsh setup uses:
 - `direnv` when available
 - `rbenv` when available
 
-Bash is still configured as a small compatibility profile, but it no longer
-installs Bash-it.
-
 ## Editor
 
 Neovim is the default editor:

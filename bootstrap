@@ -86,10 +86,10 @@ setup_gitconfig() {
 }
 
 install_dotfiles() {
-  while IFS= read -r -d '' src; do
+  while IFS= read -r -d '' -u 3 src; do
     local dst="$HOME/$(basename "$src")"
     link_file "$src" "$dst"
-  done < <(
+  done 3< <(
     find -H "$DOTFILES_ROOT" \
       -mindepth 2 \
       -maxdepth 2 \
@@ -102,13 +102,13 @@ install_dotfiles() {
 }
 
 run_installers() {
-  while IFS= read -r installer; do
+  while IFS= read -r -u 3 installer; do
     success "running ${installer#$DOTFILES_ROOT/}"
     (
       cd "$(dirname "$installer")"
       DOTFILES_ROOT="$DOTFILES_ROOT" bash "$installer"
     )
-  done < <(
+  done 3< <(
     find "$DOTFILES_ROOT" \
       -name install.sh \
       ! -path "$DOTFILES_ROOT/.git/*" \
@@ -132,7 +132,9 @@ link_file() {
       skip=true
     elif [ "$overwrite_all" = false ] && [ "$backup_all" = false ] && [ "$skip_all" = false ]; then
       user "File exists: $dst ($(basename "$src")). [s]kip, [S]kip all, [o]verwrite, [O]verwrite all, [b]ackup, [B]ackup all?"
-      read -r -n 1 action
+      if ! read -r -n 1 action; then
+        action=s
+      fi
       printf '\n'
 
       case "$action" in

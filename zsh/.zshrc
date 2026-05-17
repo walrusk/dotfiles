@@ -46,14 +46,9 @@ compinit -d "$_zcompdump"
 unset _zcompdump
 
 alias g="git status --short --branch"
-alias gc="git commit"
-alias gp="git pull"
-alias gl="git log --graph --pretty=format:'%C(red)%h%Creset %an: %s %C(yellow)%d%Creset %Cgreen(%cr)%Creset' --abbrev-commit --date=relative"
 alias vim="nvim"
 alias vi="nvim"
 alias v="nvim"
-alias d="docker"
-alias dc="docker compose"
 alias pubkey="pbcopy < ~/.ssh/id_ed25519.pub && echo 'Public key copied to pasteboard.'"
 
 if command -v eza >/dev/null 2>&1; then
