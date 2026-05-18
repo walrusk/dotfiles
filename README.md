@@ -31,7 +31,13 @@ The bootstrap script will:
 - install JetBrainsMono Nerd Font for terminal glyph support
 - install Maccy as the clipboard manager
 - offer to set `/bin/zsh` as the default login shell
-- run topic installers, including `robotnik` from `github.com/walrusk/robotnik`
+- run topic installers:
+  - `bash/install.sh`
+  - `macos/install.sh`
+  - `nvim/install.sh`
+  - `robotnik/install.sh`, including `robotnik` from `github.com/walrusk/robotnik`
+  - `ruby/install.sh`
+  - `tmux/install.sh`
 
 ## Shell
 
