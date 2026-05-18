@@ -22,6 +22,7 @@
         plo = pull origin
         prune-local = !git-delete-local-merged
         pso = push origin
+        pushf = push --force-with-lease
         rank-contributors = !git-rank-contributors
         s = status
         wtf = !git-wtf

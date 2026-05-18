@@ -2,6 +2,11 @@
 
 set -euo pipefail
 
+if command -v robotnik >/dev/null 2>&1; then
+  echo "robotnik already found in PATH; skipping install."
+  exit 0
+fi
+
 if ! command -v go >/dev/null 2>&1; then
   echo "go not found; cannot install Robotnik."
   exit 1
