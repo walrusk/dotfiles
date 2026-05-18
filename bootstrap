@@ -164,6 +164,11 @@ install_dotfiles() {
 
 run_installers() {
   while IFS= read -r -u 3 installer; do
+    if [ "$installer" = "$DOTFILES_ROOT/bash/install.sh" ]; then
+      success "skipped ${installer#"$DOTFILES_ROOT"/}"
+      continue
+    fi
+
     success "running ${installer#"$DOTFILES_ROOT"/}"
     (
       cd "$(dirname "$installer")"

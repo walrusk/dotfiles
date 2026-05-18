@@ -19,6 +19,7 @@
         fo = fetch origin
         ignored = !git ls-files -v | grep "^[[:lower:]]"
         lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+        merges = merge --squash
         plo = pull origin
         prune-local = !git-delete-local-merged
         pso = push origin
