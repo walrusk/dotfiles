@@ -26,6 +26,10 @@ export VISUAL="$EDITOR"
 export PAGER="less"
 export HOMEBREW_NO_ENV_HINTS=1
 
+if [ -z "${SSH_AUTH_SOCK:-}" ] && command -v ssh-agent >/dev/null 2>&1; then
+  eval "$(ssh-agent -s)" >/dev/null
+fi
+
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=50000
 SAVEHIST=50000
