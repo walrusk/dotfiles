@@ -15,7 +15,7 @@ fi
 bin_dir="$HOME/.local/bin"
 mkdir -p "$bin_dir"
 
-GOBIN="$bin_dir" go install github.com/walrusk/robotnik@latest
+GOBIN="$bin_dir" go install github.com/robotnorman/robotnik@latest
 
 if [ -x "$bin_dir/robotnik" ]; then
   echo "Installed robotnik to $bin_dir/robotnik"

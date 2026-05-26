@@ -1,4 +1,4 @@
-# walrusk dotfiles
+# robotnorman dotfiles
 
 Personal macOS development dotfiles, forked long ago from
 [holman/dotfiles](https://github.com/holman/dotfiles).
@@ -17,7 +17,7 @@ xcode-select --install
 Then clone and bootstrap:
 
 ```sh
-git clone https://github.com/walrusk/dotfiles.git ~/repos/dotfiles
+git clone https://github.com/robotnorman/dotfiles.git ~/repos/dotfiles
 cd ~/repos/dotfiles
 ./bootstrap
 ```
@@ -32,10 +32,9 @@ The bootstrap script will:
 - install Maccy as the clipboard manager
 - offer to set `/bin/zsh` as the default login shell
 - run topic installers:
-  - `bash/install.sh`
   - `macos/install.sh`
   - `nvim/install.sh`
-  - `robotnik/install.sh`, including `robotnik` from `github.com/walrusk/robotnik`
+  - `robotnik/install.sh`, including `robotnik` from `github.com/robotnorman/robotnik`
   - `ruby/install.sh`
   - `tmux/install.sh`
 

@@ -6,14 +6,14 @@ Make this dotfiles project reliable for development on the current Apple Silicon
 
 ## Scope
 
-- Modernize defaults from Bash/Vim to zsh/Neovim while preserving backwards-compatible Bash support where cheap.
+- Modernize defaults from Bash/Vim to zsh/Neovim and remove legacy Bash profile support.
 - Update bootstrap and installers for current Homebrew, Apple Silicon paths, safer shell behavior, and repeatable fresh-machine setup.
 - Refresh the Homebrew bundle to a smaller modern baseline.
 - Remove approved stale artifacts and older baseline tools:
   - `bin/ngrok`
   - `bin/subl`
   - `bin/tmuxinator`
-  - `tmux/walrusk.yml`
+  - `tmux/robotnorman.yml`
   - `php`
   - `composer`
   - `ack`

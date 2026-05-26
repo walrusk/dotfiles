@@ -14,7 +14,7 @@ backup_all=false
 skip_all=false
 
 main() {
-  heading "@walrusk dotfiles bootstrap"
+  heading "@robotnorman dotfiles bootstrap"
 
   heading "Setting up git identity"
   setup_gitconfig
@@ -164,11 +164,6 @@ install_dotfiles() {
 
 run_installers() {
   while IFS= read -r -u 3 installer; do
-    if [ "$installer" = "$DOTFILES_ROOT/bash/install.sh" ]; then
-      success "skipped ${installer#"$DOTFILES_ROOT"/}"
-      continue
-    fi
-
     success "running ${installer#"$DOTFILES_ROOT"/}"
     (
       cd "$(dirname "$installer")"
